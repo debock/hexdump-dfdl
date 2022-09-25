@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+>
+
+  <!-- DFDL inclusion -->
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format alignmentUnits="bits" lengthUnits="bits" representation="binary" binaryNumberRep="binary" 
+                   byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" lengthKind="implicit" alignment="1" encodingErrorPolicy="replace" 
+                   emptyValueDelimiterPolicy="none" escapeSchemeRef="" fillByte="f" floating="no" ignoreCase="no" 
+                   initiatedContent="no" initiator="" leadingSkip="0" separator="" separatorPolicy="suppressed" 
+                   outputNewLine="%LF;"
+                   sequenceKind="ordered" terminator="" textBidi="no"
+                   textNumberRep="standard" textOutputMinLength="0" textPadKind="none" textTrimKind="none" trailingSkip="0" truncateSpecifiedLengthString="no" 
+                   encoding="US-ASCII" nilKind="literalValue" nilValueDelimiterPolicy="none" occursCountKind="parsed" choiceLengthKind="implicit"
+      />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <!-- description of input file format -->
+
+  <xs:element name="hexdump">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="hexbinSoi" maxOccurs="1" minOccurs="1" dfdl:occursCountKind="implicit" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="2" />
+        <xs:element name="segment"            minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="hexbinMarkerId"   minOccurs="1" maxOccurs="1" dfdl:occursCountKind="implicit" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1" />
+              <xs:element name="hexbinMarkerType" minOccurs="1" maxOccurs="1" dfdl:occursCountKind="implicit" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1" />
+              <xs:choice>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator test="{hexbinMarkerType ne xs:hexBinary('DA')}"/>
+                    </xs:appinfo>
+                  </xs:annotation>
+                  <xs:element name="segmentSize"       minOccurs="1" maxOccurs="1" type="unsignedint16" />
+                  <xs:element name="hexbinSegmentData" minOccurs="1" maxOccurs="1" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{../segmentSize - 2}" />
+                </xs:sequence>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator test="{hexbinMarkerType eq xs:hexBinary('DA')}"/>
+                    </xs:appinfo>
+                  </xs:annotation>
+                    <xs:element name="hexbin30" maxOccurs="unbounded" dfdl:occursCountKind="implicit" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="30" minOccurs="0" />
+                    <xs:element name="hexbin01" maxOccurs="unbounded" dfdl:occursCountKind="implicit" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1"  minOccurs="0" />
+                </xs:sequence>
+              </xs:choice>    
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="hexbin30" maxOccurs="unbounded" dfdl:occursCountKind="implicit" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="30" minOccurs="0" />
+        <xs:element name="hexbin01" maxOccurs="unbounded" dfdl:occursCountKind="implicit" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1"  minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- type definitions -->
+
+  <xs:simpleType name="unsignedint16" dfdl:length="16" dfdl:lengthKind="explicit">
+		<xs:restriction base="xs:unsignedInt"/>
+	</xs:simpleType>
+
+</xs:schema>
